@@ -4,12 +4,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Inventory Dashboard</title>
+    <title>Interactive Product Inventory Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="CapstoneProject.js" defer></script>
 </head>
 <body>
-    <h1>Interactive Product Inventory & Analytics Dashboard</h1>
-    <p>Open the browser console using F12 to view the output.</p>
 
-    <script src="CapstoneProject.js"></script>
+    <header class="header">
+        <div>
+            <p class="eyebrow">JAVASCRIPT CAPSTONE PROJECT</p>
+            <h1>Product Inventory Dashboard</h1>
+            <p class="subtitle">Manage products and track inventory analytics.</p>
+        </div>
+
+        <button id="addProductBtn" class="add-btn">
+            + Add Product
+        </button>
+    </header>
+
+    <main class="container">
+
+        <section class="cards">
+            <article class="boxs">
+                <p>Total Products</p>
+                <h2 id="totalProducts">0</h2>
+                <span>Products in inventory</span>
+            </article>
+
+            <article class="boxs">
+                <p>Total Inventory Value</p>
+                <h2 id="inventoryValue">$0.00</h2>
+                <span>Combined product prices</span>
+            </article>
+
+            <article class="boxs">
+                <p>Affordable Products</p>
+                <h2 id="affordableCount">0</h2>
+                <span>Price under $200</span>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="section-heading">
+                <div>
+                    <h2>Inventory Overview</h2>
+                    <p>Browse and search your products.</p>
+                </div>
+
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search products..."
+                    aria-label="Search products"
+                >
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="productTable"></tbody>
+                </table>
+            </div>
+
+            <p id="emptyMessage" hidden>No products found.</p>
+        </section>
+
+        <section class="panel analytics">
+            <h2>Financial Analytics</h2>
+
+            <div class="analytics-grid">
+                <div>
+                    <p>Total Categories</p>
+                    <h3 id="totalCategories">0</h3>
+                </div>
+
+                <div>
+                    <p>10% Tax on Inventory</p>
+                    <h3 id="taxValue">$0.00</h3>
+                </div>
+
+                <div>
+                    <p>Value After 5% Discount</p>
+                    <h3 id="discountValue">$0.00</h3>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Formatted Inventory Report</h2>
+            <ul id="reportList" class="report-list"></ul>
+        </section>
+
+        <footer>
+            Built with HTML, CSS and JavaScript
+        </footer>
+
+    </main>
 </body>
 </html>

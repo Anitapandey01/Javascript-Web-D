@@ -1,138 +1,222 @@
 
+"use strict";
+
 console.log("--- Initializing Inventory System ---");
 
-// 1. Initial inventory
+// 1. Data initialization
 const inventory = [
     { name: "Laptop", price: 800 },
     { name: "Mouse", price: 25 }
 ];
 
-// 2. Take input from the user
-const productName = prompt("Enter new product name:");
-const priceInput = prompt("Enter product price:");
-const productPrice = Number(priceInput);
+// 2. if...else and switch: price-based category
+function getCategory(price) {
+    let category;
 
-// Validate input using if...else
-if (
-    productName === null ||
-    productName.trim() === "" ||
-    priceInput === null ||
-    priceInput.trim() === "" ||
-    !Number.isFinite(productPrice) ||
-    productPrice <= 0
-) {
-    console.log("Invalid input. Please enter a valid product name and positive price.");
-} else {
-    // Add the new product to inventory
-    inventory.push({
-        name: productName.trim(),
-        price: productPrice
+    if (price < 100) {
+        category = "Budget";
+    } else if (price < 200) {
+        category = "Standard";
+    } else {
+        category = "Premium";
+    }
+
+    switch (category) {
+        case "Budget":
+            return "Budget";
+        case "Standard":
+            return "Standard";
+        case "Premium":
+            return "Premium";
+        default:
+            return "Unknown";
+    }
+}
+
+// Regular function: calculate total
+function calculateTotal(items) {
+    let total = 0;
+
+    items.forEach((item) => {
+        total += item.price;
     });
 
-    // 3. Function to assign a category using switch
-    function getCategory(price) {
-        let priceLevel;
+    return total;
+}
 
-        if (price < 50) {
-            priceLevel = "budget";
-        } else if (price < 200) {
-            priceLevel = "standard";
-        } else {
-            priceLevel = "premium";
+// Arrow functions: tax and discount
+const applyTax = (amount, taxPercent) =>
+    amount + (amount * taxPercent / 100);
+
+const applyDiscount = (amount, discountPercent) =>
+    amount - (amount * discountPercent / 100);
+
+// Search using loop, continue and break
+function findProduct(name) {
+    for (let i = 0; i < inventory.length; i++) {
+        if (!inventory[i].name) {
+            continue;
         }
 
-        switch (priceLevel) {
-            case "budget":
-                return "Budget";
-            case "standard":
-                return "Standard";
-            case "premium":
-                return "Premium";
-            default:
-                return "Unknown";
+        if (inventory[i].name.toLowerCase() === name.toLowerCase()) {
+            return inventory[i];
         }
     }
 
-    // 4. Regular function to calculate total inventory value
-    function calculateTotal(items) {
-        let total = 0;
+    return null;
+}
 
-        for (let i = 0; i < items.length; i++) {
-            // Demonstrate continue
-            if (!Number.isFinite(items[i].price)) {
-                continue;
-            }
+// 3. Prompt-based product input
+function addProduct() {
+    const nameInput = prompt("Enter product name:");
 
-            total += items[i].price;
-        }
-
-        return total;
+    // User cancelled the prompt
+    if (nameInput === null) {
+        return;
     }
 
-    // 5. Arrow function with default tax rate
-    const calculateTax = (amount, taxRate = 0.10) => {
-        return amount * taxRate;
-    };
+    const name = nameInput.trim();
 
-    // 6. Arrow function with default discount rate
-    const calculateDiscount = (amount, discountRate = 0) => {
-        return amount * discountRate;
-    };
-
-    // 7. Search inventory using while and break
-    let index = 0;
-    let foundProduct = null;
-
-    while (index < inventory.length) {
-        if (
-            inventory[index].name.toLowerCase() ===
-            productName.trim().toLowerCase()
-        ) {
-            foundProduct = inventory[index];
-            break;
-        }
-
-        index++;
+    if (name === "") {
+        alert("Product name cannot be empty.");
+        return;
     }
 
-    if (foundProduct) {
-        console.log("\n--- Product Search ---");
-        console.log("Found:", foundProduct.name);
+    const priceInput = prompt("Enter product price:");
+
+    if (priceInput === null) {
+        return;
     }
 
-    // 8. Display the inventory using forEach
+    const price = Number(priceInput);
+
+    if (priceInput.trim() === "" ||
+        !Number.isFinite(price) ||
+        price <= 0) {
+        alert("Please enter a valid price greater than zero.");
+        return;
+    }
+
+    // Avoid duplicate product names
+    if (findProduct(name)) {
+        alert("A product with this name already exists.");
+        return;
+    }
+
+    inventory.push({ name, price });
+
+    console.log(
+        `[Prompt executed: User adds "${name}" at "$${price}"]`
+    );
+
+    updateDashboard();
+    alert(`${name} has been added successfully!`);
+}
+
+// 4. Update dashboard cards, table and report
+function updateDashboard(searchTerm = "") {
+    const total = calculateTotal(inventory);
+
+    // filter()
+    const affordableItems = inventory.filter(
+        (item) => item.price < 200
+    );
+
+    // map()
+    const formattedReport = inventory.map(
+        (item) => `${item.name.toUpperCase()}: $${item.price}`
+    );
+
+    // Unique categories
+    const categories = [
+        ...new Set(inventory.map((item) => getCategory(item.price)))
+    ];
+
+    // Update summary cards
+    document.getElementById("totalProducts").textContent =
+        inventory.length;
+
+    document.getElementById("inventoryValue").textContent =
+        `$${total.toFixed(2)}`;
+
+    document.getElementById("affordableCount").textContent =
+        affordableItems.length;
+
+    document.getElementById("totalCategories").textContent =
+        categories.length;
+
+    document.getElementById("taxValue").textContent =
+        `$${applyTax(total, 10).toFixed(2)}`;
+
+    document.getElementById("discountValue").textContent =
+        `$${applyDiscount(total, 5).toFixed(2)}`;
+
+    // forEach(): render product rows
+    const table = document.getElementById("productTable");
+    table.innerHTML = "";
+
+    const visibleItems = inventory.filter((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    visibleItems.forEach((item) => {
+        const row = document.createElement("tr");
+
+        const nameCell = document.createElement("td");
+        nameCell.textContent = item.name;
+
+        const priceCell = document.createElement("td");
+        priceCell.textContent = `$${item.price.toFixed(2)}`;
+
+        const categoryCell = document.createElement("td");
+        const badge = document.createElement("span");
+
+        badge.textContent = getCategory(item.price);
+        badge.className =
+            `category-badge ${getCategory(item.price).toLowerCase()}`;
+
+        categoryCell.appendChild(badge);
+        row.append(nameCell, priceCell, categoryCell);
+        table.appendChild(row);
+    });
+
+    document.getElementById("emptyMessage").hidden =
+        visibleItems.length !== 0;
+
+    // Render transformed report
+    const reportList = document.getElementById("reportList");
+    reportList.innerHTML = "";
+
+    formattedReport.forEach((report) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = report;
+        reportList.appendChild(listItem);
+    });
+
+    // Required console output
     console.log("\n--- Processing Inventory Roster (forEach) ---");
 
-    inventory.forEach((product) => {
+    inventory.forEach((item) => {
         console.log(
-            `* Item: ${product.name} ($${product.price}) -> Category: ${getCategory(product.price)}`
+            `* Item: ${item.name} ($${item.price}) -> Category: ${getCategory(item.price)}`
         );
     });
 
-    // 9. Financial analytics
-    const totalValue = calculateTotal(inventory);
-    const tax = calculateTax(totalValue);
-    const discount = calculateDiscount(totalValue);
-
     console.log("\n--- Financial Analytics ---");
-    console.log("Total Inventory Value: $" + totalValue);
-    console.log("Tax (10%): $" + tax);
-    console.log("Discount: $" + discount);
-
-    // 10. Filter affordable products
-    const affordableProducts = inventory
-        .filter((product) => product.price < 200)
-        .map((product) => product.name);
-
+    console.log(`Total Inventory Value: $${total}`);
     console.log(
         "Filtered Affordable Items (Under $200):",
-        JSON.stringify(affordableProducts)
+        JSON.stringify(affordableItems.map((item) => item.name))
     );
-
-    // 11. Create formatted report using map
-    const report = inventory.map((product) => {
-        return `${product.name.toUpperCase()}: $${product.price}`;
-    });
-
-    console.log("Formatted Report List:", JSON.stringify(report));
+    console.log("Formatted Report List:", JSON.stringify(formattedReport));
 }
+
+// Connect button and search input
+document.getElementById("addProductBtn").addEventListener("click", addProduct);
+
+document.getElementById("searchInput").addEventListener("input", (event) => {
+    updateDashboard(event.target.value);
+});
+
+// Initial page render
+updateDashboard();
